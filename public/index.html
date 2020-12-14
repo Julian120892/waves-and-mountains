@@ -1,10 +1,30 @@
 <!doctype html>
 <html>
 <head>
+    <link rel="stylesheet" href="style.css">
     <title></title>
 </head>
 <body>
+
+    <header>
+    <h1>imageboard</h1>
+    </header>
+
+
+<div id="main">
+<div class="post" v-for="images in images">
+<img :src="images.url" alt="">
+<h5>{{images.username}}</h5>
+<h4>{{images.title}}</h4>
+<span>{{images.description}}</span>
+</div>
+
+<!-- <img v-for="images in images" :src="images.url" alt=""> -->
+
+</div>
+
     <script src="/js/vue.js"></script>
     <script src="/js/axios.min.js"></script>
+    <script src="/js/script.js"></script>
 </body>
 </html>
