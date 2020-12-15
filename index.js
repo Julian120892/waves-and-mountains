@@ -1,33 +1,54 @@
 const express = require("express");
 const app = express();
 const db = require("./db");
+const multer = require("multer");
+const uidSafe = require("uid-safe");
+const path = require("path");
+const s3 = require("./s3");
+const config = require("./config.json");
+
+const diskStorage = multer.diskStorage({
+    destination: (req, file, callback) => {
+        callback(null, __dirname + "/uploads");
+    },
+    filename: (req, file, callback) => {
+        uidSafe(24).then((uid) => {
+            callback(null, uid + path.extname(file.originalname));
+        });
+    },
+});
+
+const uploader = multer({
+    storage: diskStorage,
+    limits: {
+        fileSize: 2097152,
+    },
+});
 
 app.use(express.static("public"));
 
-const cities = [
-    {
-        name: "Berlin",
-        country: "Germany",
-    },
-    {
-        name: "London",
-        country: "UK",
-    },
-    {
-        name: "Köln",
-        country: "Germany",
-    },
-];
+app.post("/upload", uploader.single("image"), s3.upload, (req, res) => {
+    if (req.file) {
+        let uploadedImage = {
+            username: req.body.username,
+            title: req.body.title,
+            description: req.body.description,
+            url: config.s3Url + req.file.filename,
+        };
 
-app.get("/cities", (req, res) => {
-    //things
-    console.log("get route was asked");
-    res.json(cities);
+        db.uploadImage(
+            uploadedImage.url,
+            uploadedImage.username,
+            uploadedImage.title,
+            uploadedImage.description
+        ).then(res.json(uploadedImage));
+    } else {
+        res.json({ success: false });
+    }
 });
 
 app.get("/images", (req, res) => {
     db.getImageFromDB().then(({ rows }) => {
-        console.log(rows[0]);
         res.json(rows);
     });
 });

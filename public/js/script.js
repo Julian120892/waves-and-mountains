@@ -2,6 +2,10 @@ new Vue({
     el: "#main",
     data: {
         images: [],
+        title: "",
+        description: "",
+        username: "",
+        image: null,
     },
     mounted: function () {
         console.log("mounted ran");
@@ -9,7 +13,6 @@ new Vue({
         axios
             .get("/images")
             .then(function (res) {
-                console.log("hallo", res.data);
                 self.images = res.data;
             })
             .catch(function (error) {
@@ -17,10 +20,21 @@ new Vue({
             });
     },
     methods: {
-        someMethod: function (city) {
-            console.log("function did run", city);
-            //change value of name key
-            this.name = city;
+        handleFileChange: function (e) {
+            this.image = e.target.files[0];
+        },
+        upload: function (e) {
+            console.log("clicked");
+            e.preventDefault();
+            var formData = new FormData();
+            formData.append("title", this.title);
+            formData.append("description", this.description);
+            formData.append("username", this.username);
+            formData.append("image", this.image);
+
+            axios.post("/upload", formData).then((res) => {
+                this.images.unshift(res.data);
+            });
         },
     },
 });

@@ -12,14 +12,33 @@
 
 
 <div id="main">
-<div class="post" v-for="images in images">
-<img :src="images.url" alt="">
-<h5>{{images.username}}</h5>
-<h4>{{images.title}}</h4>
-<span>{{images.description}}</span>
+<div class="container">
+    <form method="POST" action="/upload" enctype="multipart/form-data">
+        <input v-model="title" name="title" placeholder="title">
+        <br>
+        <input v-model="description" name="description" placeholder="description">
+        <br>
+        <input v-model="username" name="username" placeholder="username">
+        <br>
+        <input @change="handleFileChange" type="file" name="image" accept="image/*">
+        <br>
+        <br>
+        <button @click="upload">submit</button>
+    </form>
 </div>
 
-<!-- <img v-for="images in images" :src="images.url" alt=""> -->
+
+<div class="container">
+    <div class="post" v-for="images in images">
+    <img :src="images.url" alt="">
+    <h5>{{images.username}}</h5>
+    <h4>{{images.title}}</h4>
+    <span>{{images.description}}</span>
+    </div>
+
+</div>
+
+
 
 </div>
 
