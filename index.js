@@ -48,7 +48,13 @@ app.post("/upload", uploader.single("image"), s3.upload, (req, res) => {
 });
 
 app.get("/images", (req, res) => {
-    db.getImageFromDB().then(({ rows }) => {
+    db.getImagesFromDB().then(({ rows }) => {
+        res.json(rows);
+    });
+});
+
+app.get("/image", (req, res) => {
+    db.getImageFromDB(req.query.id).then(({ rows }) => {
         res.json(rows);
     });
 });

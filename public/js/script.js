@@ -1,3 +1,37 @@
+Vue.component("popupimage", {
+    data: function () {
+        return {
+            heading: "pop up Component",
+            url: "",
+            title: "",
+            description: "",
+            username: "",
+        };
+    },
+    template: "#popup-template",
+    props: ["images", "id"],
+
+    mounted: function () {
+        console.log(this.id);
+        var self = this;
+        axios
+            .get("/image", {
+                params: { id: this.id },
+            })
+            .then((result) => {
+                self.title = result.data[0].title;
+                self.url = result.data[0].url;
+                self.description = result.data[0].description;
+                self.username = result.data[0].username;
+            });
+    },
+    methods: {
+        closePopup: function () {
+            this.$emit("close");
+        },
+    },
+});
+
 new Vue({
     el: "#main",
     data: {
@@ -6,6 +40,7 @@ new Vue({
         description: "",
         username: "",
         image: null,
+        id: null,
     },
     mounted: function () {
         console.log("mounted ran");
@@ -35,6 +70,13 @@ new Vue({
             axios.post("/upload", formData).then((res) => {
                 this.images.unshift(res.data);
             });
+        },
+        openpopup: function (imgId) {
+            this.id = imgId;
+        },
+        closingPopup: function () {
+            console.log("close me");
+            this.id = null;
         },
     },
 });

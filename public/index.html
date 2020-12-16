@@ -6,12 +6,18 @@
 </head>
 <body>
 
+
+
     <header>
     <h1>imageboard</h1>
     </header>
 
+    <div id="main">
 
-<div id="main">
+
+<popupimage v-if="id" :images="images" :id='id' @close="closingPopup"></popupimage>
+
+
 <div class="container">
     <form method="POST" action="/upload" enctype="multipart/form-data">
         <input v-model="title" name="title" placeholder="title">
@@ -28,22 +34,43 @@
 </div>
 
 
+
+
 <div class="container">
-    <div class="post" v-for="images in images">
+    <div @click="openpopup(images.id);" class="post" v-for="images in images">
     <img :src="images.url" alt="">
     <h5>{{images.username}}</h5>
     <h4>{{images.title}}</h4>
     <span>{{images.description}}</span>
     </div>
+</div>
 
 </div>
 
 
 
+
+<script id="popup-template" type="text/x-template">
+    
+<div class="popupcontainer">
+    <div class="popup">
+        <h5 @click='closePopup'>close popup</h5>
+        <img :src="url" :alt="title">
+        <h5>{{username}}</h5>
+        <h4>{{title}}</h4>
+        <span>{{description}}</span>
+    </div>
 </div>
+
+       
+
+    
+</script>
 
     <script src="/js/vue.js"></script>
     <script src="/js/axios.min.js"></script>
     <script src="/js/script.js"></script>
+
+    
 </body>
 </html>

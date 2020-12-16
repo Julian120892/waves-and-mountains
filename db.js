@@ -4,7 +4,7 @@ const db = spicedPg(
 );
 //("WhoAreWeTalkingTo:WichDBuserWillRunCommands:TheUserPassword@WhichPort/nameOfDatabase")
 
-module.exports.getImageFromDB = () => {
+module.exports.getImagesFromDB = () => {
     console.log("server request for pictures");
     const q = ` 
     SELECT *
@@ -13,6 +13,18 @@ module.exports.getImageFromDB = () => {
     ORDER BY created_at DESC;
     `;
     return db.query(q);
+};
+
+module.exports.getImageFromDB = (id) => {
+    console.log("server request for pictures");
+    const q = ` 
+    SELECT *
+    FROM
+    images
+    WHERE id = $1
+    `;
+    const params = [id];
+    return db.query(q, params);
 };
 
 module.exports.uploadImage = (url, username, title, description) => {
