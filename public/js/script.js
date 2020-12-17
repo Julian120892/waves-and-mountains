@@ -78,5 +78,18 @@ new Vue({
             console.log("close me");
             this.id = null;
         },
+        getNextSetofImages: function (e) {
+            e.preventDefault();
+            console.log("button clicked");
+
+            axios.get("/more").then((res) => {
+                console.log(res.data);
+
+                for (let i = 0; i < 10; i++) {
+                    console.log(res.data[i]);
+                    this.images.push(res.data[i]);
+                }
+            });
+        },
     },
 });

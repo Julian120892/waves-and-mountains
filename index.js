@@ -59,4 +59,13 @@ app.get("/image", (req, res) => {
     });
 });
 
+app.get("/more", (req, res) => {
+    db.getLastId().then((result) => {
+        db.getMoreImages(result.rows[0].id).then(({ rows }) => {
+            res.json(rows);
+            console.log("rows", rows);
+        });
+    });
+});
+
 app.listen(8080, () => console.log("running imageboard on 8080..."));
