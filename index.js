@@ -26,6 +26,7 @@ const uploader = multer({
 });
 
 app.use(express.static("public"));
+app.use(express.json());
 
 app.post("/upload", uploader.single("image"), s3.upload, (req, res) => {
     if (req.file) {
@@ -66,7 +67,18 @@ app.get("/more", (req, res) => {
 });
 
 app.post("/addComment", (req, res) => {
-    console.log(req.query.username);
+    db.addComment(req.body.comment, req.body.username, req.body.id).then(
+        ({ rows }) => {
+            console.log("added comment to db", rows);
+            // res.json(res.body);
+        }
+    );
+});
+
+app.get("/getComments", (req, res) => {
+    db.getComments(req.query.id).then(({ rows }) => {
+        res.json(rows);
+    });
 });
 
 app.listen(8080, () => console.log("running imageboard on 8080..."));

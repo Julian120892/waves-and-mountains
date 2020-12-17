@@ -1,30 +1,47 @@
 Vue.component("comment", {
     data: function () {
         return {
-            username: "asdasd",
-            comment: "asdasds",
+            username: "",
+            comment: "",
             comments: [],
         };
     },
-    template: "#comments-template",
     props: ["id"],
+    template: "#comments-template",
     mounted: function () {
+        console.log("id", this.id);
         //make get request for all comments at image id
+        axios
+            .get("/getComments", {
+                params: {
+                    id: this.id,
+                    username: this.username,
+                    comment: this.comment,
+                },
+            })
+            .then((res) => {
+                for (let i = 0; i < res.data.length; i++) {
+                    this.comments.push(res.data[i]);
+                }
+            });
     },
     methods: {
         addCommentToDB: function (e) {
+            console.log(this.id);
+
             e.preventDefault();
             console.log("clicked on submit comment");
-            console.log(this.username);
-            var self = this;
+            let obj = {
+                username: this.username,
+                comment: this.comment,
+                id: this.id,
+            };
 
-            axios
-                .post("/addComment", {
-                    params: { username: "username" },
-                })
-                .then((res) => {
-                    // this.comments.unshift(res.data);
-                });
+            console.log(obj);
+            axios.post("/addComment", obj).then((res) => {
+                console.log("add comment", res);
+                this.comments.unshift(res.body);
+            });
         },
     },
 });
@@ -32,7 +49,6 @@ Vue.component("comment", {
 Vue.component("popupimage", {
     data: function () {
         return {
-            heading: "pop up Component",
             url: "",
             title: "",
             description: "",
@@ -44,6 +60,7 @@ Vue.component("popupimage", {
 
     mounted: function () {
         var self = this;
+        console.log("id", this.id);
         axios
             .get("/image", {
                 params: { id: this.id },

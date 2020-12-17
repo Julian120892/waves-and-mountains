@@ -38,7 +38,7 @@
 
 
 <div class="container">
-    <div @click="openpopup(images.id);" class="post" v-for="images in images">
+    <div @click="openpopup(images.id)" class="post" v-for="images in images">
     <img :src="images.url" alt="">
     <h5>{{images.username}}</h5>
     <h4>{{images.title}}</h4>
@@ -61,7 +61,7 @@
         <h5>{{username}}</h5>
         <h4>{{title}}</h4>
         <span>{{description}}</span>
-            <comment></comment>
+            <comment :id="id"></comment>
 
     </div>
 </div>
@@ -70,14 +70,15 @@
 <script id="comments-template" type="text/x-template">
 <div class="commentcontainer">
     <form action="/addComment">
-        <input type="text" name="username">
-        <input type="text" name="comment">
+        <input type="text" v-model="username" name="username">
+        <input type="text" v-model="comment" name="comment">
     <button @click="addCommentToDB">Submit</button>
     </form>
-    <!-- <div class="comment" v-for="comments in comments">
-        <h4>{{username}}</h4>
-        <h3>{{comments}}</h3>
-    </div> -->
+    <div class="comment" v-for="comments in comments">
+        <h4>{{comments.username}}</h4>
+        <h3>{{comments.comment}}</h3>
+        <br>
+    </div>
 </div>
 </script>
 

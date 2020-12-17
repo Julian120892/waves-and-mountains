@@ -53,3 +53,23 @@ module.exports.getMoreImages = (lastid) => {
     const params = [lastid];
     return db.query(q, params);
 };
+
+module.exports.addComment = (comment, username, imageId) => {
+    const q = `
+        INSERT INTO comments (comment, username, imageId) 
+        VALUES ($1, $2, $3)
+        ;
+`;
+    const params = [comment, username, imageId];
+    return db.query(q, params);
+};
+
+module.exports.getComments = (imageId) => {
+    const q = `
+        SELECT * FROM comments
+        WHERE imageId = $1
+        ;
+`;
+    const params = [imageId];
+    return db.query(q, params);
+};
