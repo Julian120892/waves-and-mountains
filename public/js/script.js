@@ -1,3 +1,34 @@
+Vue.component("comment", {
+    data: function () {
+        return {
+            username: "asdasd",
+            comment: "asdasds",
+            comments: [],
+        };
+    },
+    template: "#comments-template",
+    props: ["id"],
+    mounted: function () {
+        //make get request for all comments at image id
+    },
+    methods: {
+        addCommentToDB: function (e) {
+            e.preventDefault();
+            console.log("clicked on submit comment");
+            console.log(this.username);
+            var self = this;
+
+            axios
+                .post("/addComment", {
+                    params: { username: "username" },
+                })
+                .then((res) => {
+                    // this.comments.unshift(res.data);
+                });
+        },
+    },
+});
+
 Vue.component("popupimage", {
     data: function () {
         return {
@@ -12,7 +43,6 @@ Vue.component("popupimage", {
     props: ["images", "id"],
 
     mounted: function () {
-        console.log(this.id);
         var self = this;
         axios
             .get("/image", {
@@ -80,16 +110,17 @@ new Vue({
         },
         getNextSetofImages: function (e) {
             e.preventDefault();
-            console.log("button clicked");
-
-            axios.get("/more").then((res) => {
-                console.log(res.data);
-
-                for (let i = 0; i < 10; i++) {
-                    console.log(res.data[i]);
-                    this.images.push(res.data[i]);
-                }
-            });
+            let index = this.images.length;
+            axios
+                .get("/more", {
+                    params: { id: this.images[index - 1].id },
+                })
+                .then((res) => {
+                    for (let i = 0; i < 10; i++) {
+                        console.log(res.data[i]);
+                        this.images.push(res.data[i]);
+                    }
+                });
         },
     },
 });

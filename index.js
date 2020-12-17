@@ -60,12 +60,13 @@ app.get("/image", (req, res) => {
 });
 
 app.get("/more", (req, res) => {
-    db.getLastId().then((result) => {
-        db.getMoreImages(result.rows[0].id).then(({ rows }) => {
-            res.json(rows);
-            console.log("rows", rows);
-        });
+    db.getMoreImages(req.query.id).then(({ rows }) => {
+        res.json(rows);
     });
+});
+
+app.post("/addComment", (req, res) => {
+    console.log(req.query.username);
 });
 
 app.listen(8080, () => console.log("running imageboard on 8080..."));

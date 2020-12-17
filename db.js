@@ -39,21 +39,16 @@ module.exports.uploadImage = (url, username, title, description) => {
     return db.query(q, params);
 };
 
-module.exports.getLastId = () => {
-    const q = `
-        SELECT id FROM images
-        ORDER BY id DESC
-        LIMIT 1;
-        `;
-    return db.query(q);
-};
-
 module.exports.getMoreImages = (lastid) => {
     const q = `
-        SELECT * FROM images
-        WHERE id < $1
-        ORDER BY id DESC
-        LIMIT 10;
+        SELECT url, title, id, (
+     SELECT id FROM images
+     ORDER BY id ASC
+     LIMIT 1
+ ) AS "lowestId" FROM images
+ WHERE id < $1
+ ORDER BY id DESC
+ LIMIT 10;
         `;
     const params = [lastid];
     return db.query(q, params);
