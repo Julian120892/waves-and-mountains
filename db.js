@@ -33,6 +33,7 @@ module.exports.uploadImage = (url, username, title, description) => {
     const q = ` 
         INSERT INTO images (url, username, title, description) 
         VALUES ($1, $2, $3, $4)
+        RETURNING *
         ;
     `;
     const params = [url, username, title, description];
@@ -41,7 +42,7 @@ module.exports.uploadImage = (url, username, title, description) => {
 
 module.exports.getMoreImages = (lastid) => {
     const q = `
-        SELECT url, title, id, (
+        SELECT url, title, id, username, description, (
      SELECT id FROM images
      ORDER BY id ASC
      LIMIT 1

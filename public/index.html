@@ -1,36 +1,55 @@
 <!doctype html>
 <html>
 <head>
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <title></title>
 </head>
 <body>
 
+<div id="main">
 
 
     <header>
-    <h1>imageboard</h1>
-    </header>
+    <h1>Waves & Mountains.</h1>
+    <nav>
+        <button v-if="add" id="addBtn" @click="hideUpload">-</button>
+        <button v-else="add" id="addBtn" @click="showUpload">+</button>
+    </nav>
+</header>
 
-    <div id="main">
+<div v-if="pending" id="uploadpending">
+    <img id="waitinganimation" src="/img/unnamed.gif" alt="">
+</div>
 
 
-<popupimage v-if="id" :images="images" :id='id' @close="closingPopup">
-</popupimage>
 
 
-<div class="container">
+    <popupimage v-if="id" :images="images" :id='id' @close="closingPopup">
+    </popupimage>
+
+
+<div v-if="add" class="container" id="uploadimage">
+
     <form method="POST" action="/upload" enctype="multipart/form-data">
-        <input v-model="title" name="title" placeholder="title">
+        <input id="text" v-model="title" name="title" placeholder="title">
+        <input id="text" v-model="description" name="description" placeholder="description">
+        <input  id="text" v-model="username" name="username" placeholder="username">
+        <br><br>
+
+        <label class="input-file" for="input-file">
+            <span><p>upload here</p>
+                <input class="custom-file-input" @change="handleFileChange" type="file" name="image" accept="image/*">
+            </span>
+        </label>    
         <br>
-        <input v-model="description" name="description" placeholder="description">
+
+       
         <br>
-        <input v-model="username" name="username" placeholder="username">
-        <br>
-        <input @change="handleFileChange" type="file" name="image" accept="image/*">
-        <br>
-        <br>
-        <button @click="upload">submit</button>
+        <button id="btn" @click="upload">submit</button>
     </form>
 </div>
 
@@ -38,17 +57,31 @@
 
 
 <div class="container">
-    <div @click="openpopup(images.id)" class="post" v-for="images in images">
-    <img :src="images.url" alt="">
-    <h5>{{images.username}}</h5>
-    <h4>{{images.title}}</h4>
-    <span>{{images.description}}</span>
+    <div class="post" v-for="images in images">
+    
+        <a :href="'#'+images.id">
+    
+        <img :src="images.url" alt="">
+        <h4>{{images.title}}</h4>
+        <h5>{{images.username}}</h5>
+        <hr style="width:100px; margin: auto;">
+        <span>{{images.description}}</span>
+        <br>
+    </a>
     </div>
 </div>
     <form action="/more" method="GET">
-        <button @click="getNextSetofImages">load more pictures</button>
+        <div class="container">
+            <button v-if="lastimagenotonscreen" id="btn" class="morebtn" @click="getNextSetofImages">load more pictures</button>
+            <h4 id="warning" v-else="lastimagenotonscreen">You reached the end. <br> No more Images.</h4>
+        </div>
+        <br><br><br>
+
     </form>
 </div>
+
+
+
 
 
 
@@ -56,12 +89,24 @@
 <script id="popup-template" type="text/x-template">
 <div class="popupcontainer">
     <div class="popup">
-        <h5 @click='closePopup'>close popup</h5>
-        <img :src="url" :alt="title">
-        <h5>{{username}}</h5>
-        <h4>{{title}}</h4>
-        <span>{{description}}</span>
-            <comment :id="id"></comment>
+    
+        <div class="popupheader">
+        <button id="addBtn" class="x" @click='closePopup'>x</button>
+        </div>
+
+        
+        <div class="imageText">
+            <img :src="url" :alt="title">
+            <h5>{{username}}</h5>
+            <h4>{{title}}</h4>
+            <hr style="margin: auto;">
+            <span> {{description}}</span>
+        <br><br>
+        </div>
+    
+      <div class="commentSection">
+          <comment :id="id"></comment>
+      </div>
 
     </div>
 </div>
@@ -70,15 +115,21 @@
 <script id="comments-template" type="text/x-template">
 <div class="commentcontainer">
     <form action="/addComment">
-        <input type="text" v-model="username" name="username">
-        <input type="text" v-model="comment" name="comment">
-    <button @click="addCommentToDB">Submit</button>
-    </form>
+        <input type="text" id="usernameComment" v-model="username" name="username" placeholder="username">
+        <textarea cols="40" rows="5" id="commentInput" type="text" v-model="comment" name="comment" placeholder="write your Comment here.">
+        </textarea>
+    <button @click="addCommentToDB" id="btn">Submit</button>
+<br><br>  
+</form>
+
+<div class="commentsContainer">
     <div class="comment" v-for="comments in comments">
         <h4>{{comments.username}}</h4>
         <h3>{{comments.comment}}</h3>
         <br>
     </div>
+</div>
+
 </div>
 </script>
 

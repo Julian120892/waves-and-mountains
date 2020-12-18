@@ -21,7 +21,7 @@ const diskStorage = multer.diskStorage({
 const uploader = multer({
     storage: diskStorage,
     limits: {
-        fileSize: 2097152,
+        fileSize: 20971520,
     },
 });
 
@@ -30,19 +30,16 @@ app.use(express.json());
 
 app.post("/upload", uploader.single("image"), s3.upload, (req, res) => {
     if (req.file) {
-        let uploadedImage = {
-            username: req.body.username,
-            title: req.body.title,
-            description: req.body.description,
-            url: config.s3Url + req.file.filename,
-        };
+        const { username, title, description } = req.body;
+        const url = config.s3Url + req.file.filename;
 
-        db.uploadImage(
-            uploadedImage.url,
-            uploadedImage.username,
-            uploadedImage.title,
-            uploadedImage.description
-        ).then(res.json(uploadedImage));
+        db.uploadImage(url, username, title, description)
+            .then(({ rows }) => {
+                res.json(rows[0]); //why is id undefined here?
+            })
+            .catch((err) => {
+                console.log(err);
+            });
     } else {
         res.json({ success: false });
     }
@@ -55,9 +52,13 @@ app.get("/images", (req, res) => {
 });
 
 app.get("/image", (req, res) => {
-    db.getImageFromDB(req.query.id).then(({ rows }) => {
-        res.json(rows);
-    });
+    db.getImageFromDB(req.query.id)
+        .then(({ rows }) => {
+            res.json(rows); //why is id undefined here?
+        })
+        .catch((err) => {
+            console.log(err);
+        });
 });
 
 app.get("/more", (req, res) => {
@@ -67,12 +68,14 @@ app.get("/more", (req, res) => {
 });
 
 app.post("/addComment", (req, res) => {
-    db.addComment(req.body.comment, req.body.username, req.body.id).then(
-        ({ rows }) => {
-            console.log("added comment to db", rows);
-            // res.json(res.body);
-        }
-    );
+    let newCommet = {
+        username: req.body.username,
+        id: req.body.id,
+        comment: req.body.comment,
+    };
+    db.addComment(req.body.comment, req.body.username, req.body.id).then(() => {
+        res.json(newCommet);
+    });
 });
 
 app.get("/getComments", (req, res) => {

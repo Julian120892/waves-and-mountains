@@ -10,7 +10,6 @@ Vue.component("comment", {
     template: "#comments-template",
     mounted: function () {
         console.log("id", this.id);
-        //make get request for all comments at image id
         axios
             .get("/getComments", {
                 params: {
@@ -37,10 +36,11 @@ Vue.component("comment", {
                 id: this.id,
             };
 
-            console.log(obj);
             axios.post("/addComment", obj).then((res) => {
-                console.log("add comment", res);
-                this.comments.unshift(res.body);
+                console.log("add comment");
+                this.comments.unshift(res.data);
+                this.username = "";
+                this.comment = "";
             });
         },
     },
@@ -72,6 +72,26 @@ Vue.component("popupimage", {
                 self.username = result.data[0].username;
             });
     },
+    watch: {
+        id: function () {
+            var self = this;
+            axios
+                .get("/image", {
+                    params: { id: this.id },
+                })
+                .then((result) => {
+                    self.title = result.data[0].title;
+                    self.url = result.data[0].url;
+                    self.description = result.data[0].description;
+                    self.username = result.data[0].username;
+                    //still need to figure out what to do when server does not have info bsp: #99 --> close modal
+                })
+                .catch(function (error) {
+                    console.log("error in axios get", error);
+                    self.$emit("close");
+                });
+        },
+    },
     methods: {
         closePopup: function () {
             this.$emit("close");
@@ -87,11 +107,21 @@ new Vue({
         description: "",
         username: "",
         image: null,
-        id: null,
+        id: location.hash.slice(1),
+        add: null,
+        lastimagenotonscreen: 1,
+        lowId: null,
+        pending: null,
     },
     mounted: function () {
         console.log("mounted ran");
         var self = this;
+
+        addEventListener("hashchange", function () {
+            console.log("location has updated", location.hash);
+            self.id = location.hash.slice(1);
+        });
+
         axios
             .get("/images")
             .then(function (res) {
@@ -113,16 +143,20 @@ new Vue({
             formData.append("description", this.description);
             formData.append("username", this.username);
             formData.append("image", this.image);
+            this.add = null;
+            this.pending = 1;
 
             axios.post("/upload", formData).then((res) => {
                 this.images.unshift(res.data);
+                this.pending = null;
+                this.title = "";
+                this.username = "";
+                this.description = "";
             });
-        },
-        openpopup: function (imgId) {
-            this.id = imgId;
         },
         closingPopup: function () {
             console.log("close me");
+            history.pushState({}, " ", "/");
             this.id = null;
         },
         getNextSetofImages: function (e) {
@@ -133,11 +167,25 @@ new Vue({
                     params: { id: this.images[index - 1].id },
                 })
                 .then((res) => {
-                    for (let i = 0; i < 10; i++) {
-                        console.log(res.data[i]);
-                        this.images.push(res.data[i]);
+                    if (this.images[index - 1].id == this.lowId) {
+                        console.log("the same");
+                        this.lastimagenotonscreen = null;
+                    } else {
+                        for (let i = 0; i < res.data.length; i++) {
+                            this.images.push(res.data[i]);
+                        }
+                        this.lowId = res.data[0].lowestId;
                     }
+                })
+                .catch((err) => {
+                    console.log("error in get /more", err);
                 });
+        },
+        showUpload: function () {
+            this.add = 1;
+        },
+        hideUpload: function () {
+            this.add = null;
         },
     },
 });
