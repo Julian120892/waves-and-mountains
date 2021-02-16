@@ -84,4 +84,8 @@ app.get("/getComments", (req, res) => {
     });
 });
 
-app.listen(8080, () => console.log("running imageboard on 8080..."));
+if (require.main == module) {
+    app.listen(process.env.PORT || 8080, () =>
+        console.log("running imageboard on 8080...")
+    );
+}
